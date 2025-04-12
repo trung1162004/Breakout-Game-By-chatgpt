@@ -25,7 +25,7 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background-image: url('/img/nen2.jpg!bw700');
+            background-image: url('img/nen2.jpg!bw700');
             background-size: cover;
             background-position: center;
         }
@@ -90,7 +90,7 @@
         }
         #gameCanvas {
             display: none;
-            background-image: url('/img/nen3.png');
+            background-image: url('img/nen3.png');
             background-size: cover;
             background-position: center;
             box-shadow: 0 0 20px #0ff;
@@ -108,9 +108,9 @@
         <button onclick="startGame()">Start Game</button>
     </div>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <audio id="bgm" src="/sound/nen.mp3" loop></audio>
+    <audio id="bgm" src="sound/nen.mp3" loop></audio>
     <audio id="hitSound" src="sound/vacham.mp3"></audio>
-    <audio id="winSound" src="/sound/youwin.mp3"></audio>
+    <audio id="winSound" src="sound/youwin.mp3"></audio>
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
@@ -134,15 +134,15 @@
         }
 
         const paddleImg = new Image();
-        paddleImg.src = "/img/paddle.png";
+        paddleImg.src = "img/paddle.png";
 
         const ballImg = new Image();
-        ballImg.src = "/img/ball.png";
+        ballImg.src = "img/ball.png";
 
         const blockImages = [];
         for (let i = 1; i <= 3; i++) {
             const img = new Image();
-            img.src = `/img/b${i}.png`;
+            img.src = `img/b${i}.png`;
             blockImages.push(img);
         }
 
