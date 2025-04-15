@@ -3,172 +3,296 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Breakout Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; }
-        body, html {
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: sans-serif;
+        }
+
+        html,
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
             background: #000;
-            color: white;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+
+        #container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
         canvas {
-            display: block;
-            margin: 0 auto;
-            background: #111;
+            width: 100%;
+            height: 100%;
+            background: url('img/nen3.png') center/cover no-repeat;
+            border: 3px solid #0ff;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
         }
+
         #lobby {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            background-image: url('img/nen2.jpg!bw700');
-            background-size: cover;
-            background-position: center;
+            background: url('img/nen2.jpg') center/cover no-repeat;
+            z-index: 10;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
+
         #lobby h1 {
-            font-size: 48px;
-            font-weight: bold;
+            font-size: clamp(2rem, 8vw, 4rem);
             color: #0ff;
-            text-shadow: 0 0 5px #0ff, 0 0 10px #00f5ff, 0 0 20px #00f5ff;
-            margin-bottom: 20px;
-            animation: glowTitle 2s ease-in-out infinite alternate;
+            text-shadow: 0 0 10px #0ff, 0 0 20px #00f5ff;
+            margin-bottom: 1.5rem;
+            animation: pulse 2s ease-in-out infinite;
         }
-        @keyframes glowTitle {
-            from {
-                text-shadow: 0 0 5px #0ff, 0 0 10px #00f5ff, 0 0 20px #00f5ff;
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
             }
-            to {
-                text-shadow: 0 0 10px #0ff, 0 0 20px #00f5ff, 0 0 30px #00f5ff;
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
             }
         }
+
         #lobby label {
-            font-size: 18px;
+            font-size: clamp(1rem, 3vw, 1.5rem);
             color: #fff;
             text-shadow: 0 0 5px #0ff;
-            margin-top: 10px;
+            margin: 0.5rem 0;
         }
-        #highScoreDisplay {
-            font-size: 18px;
-            color: #fff;
-            text-shadow: 0 0 5px #0ff;
-            margin-bottom: 10px;
-        }
+
         #lobby input {
-            background: rgba(0, 0, 0, 0.7);
+            width: clamp(200px, 60%, 400px);
+            padding: 0.8rem;
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            background: rgba(0, 0, 0, 0.8);
             border: 2px solid #0ff;
-            color: #fff;
-            padding: 10px 20px;
             border-radius: 10px;
+            color: #fff;
+            box-shadow: 0 0 15px #0ff;
             outline: none;
-            box-shadow: 0 0 10px #0ff;
-            transition: 0.3s ease;
-            font-size: 16px;
-        }
-        #lobby input:focus {
-            box-shadow: 0 0 20px #00f5ff;
-        }
-        #lobby button {
-            margin: 10px;
-            padding: 12px 24px;
-            font-size: 18px;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            background: linear-gradient(145deg, #00ffff, #004d66);
-            color: black;
-            box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
-            cursor: pointer;
             transition: all 0.3s ease;
         }
-        #lobby button:hover {
-            background: #00ccff;
-            box-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff;
+
+        #lobby input:focus {
+            box-shadow: 0 0 25px #00f5ff;
+            border-color: #00f5ff;
         }
-        #gameCanvas {
-            display: none;
-            background-image: url('img/nen3.png');
-            background-size: cover;
-            background-position: center;
-            box-shadow: 0 0 20px #0ff;
-            border: 2px solid #00ffff;
+
+        #lobby button {
+            margin: 1rem;
+            padding: 0.8rem 2rem;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            background: linear-gradient(145deg, #00ffff, #0066ff);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            cursor: pointer;
+            box-shadow: 0 0 15px #0ff;
+            transition: all 0.3s ease;
+        }
+
+        #lobby button:hover {
+            background: linear-gradient(145deg, #00ccff, #0033cc);
+            box-shadow: 0 0 25px #00f5ff;
+        }
+
+        #highScoreDisplay {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: #fff;
+            text-shadow: 0 0 5px #0ff;
+            margin-bottom: 1rem;
+        }
+
+        @media (orientation: portrait) {
+            #lobby h1 {
+                font-size: clamp(2.5rem, 10vw, 5rem);
+            }
+
+            #lobby input {
+                width: 80%;
+            }
         }
     </style>
 </head>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+
 <body>
-    <div id="lobby">
-        <h1>Breakout Game</h1>
-        <label for="playerName">Player Name:</label>
-        <input type="text" id="playerName" placeholder="Enter your name" />
-        <div id="highScoreDisplay"></div>
-        <button onclick="startGame()">Start Game</button>
+    <div id="container">
+        <div id="lobby">
+            <h1>Breakout Game</h1>
+            <label for="playerName">Player Name:</label>
+            <input type="text" id="playerName" placeholder="Enter your name" />
+            <div id="highScoreDisplay"></div>
+            <button onclick="startGame()">Start Game</button>
+        </div>
+        <canvas id="gameCanvas"></canvas>
     </div>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
     <audio id="bgm" src="sound/nen.mp3" loop></audio>
     <audio id="hitSound" src="sound/vacham.mp3"></audio>
     <audio id="winSound" src="sound/youwin.mp3"></audio>
+    <audio id="gameOverSound" src="sound/gameover.mp3"></audio>
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
+        const isMobile = window.innerWidth <= 768;
         const lobby = document.getElementById("lobby");
         const bgm = document.getElementById("bgm");
         const hitSound = document.getElementById("hitSound");
         const winSound = document.getElementById("winSound");
+        const gameOverSound = document.getElementById("gameOverSound");
 
         let playerName = localStorage.getItem("playerName") || "Player";
         let highScore = localStorage.getItem("highScore") || 0;
         document.getElementById("playerName").value = playerName;
         document.getElementById("highScoreDisplay").textContent = `High Score: ${highScore}`;
 
-        function startGame() {
-            playerName = document.getElementById("playerName").value || "Player";
-            localStorage.setItem("playerName", playerName);
-            lobby.style.display = "none";
-            canvas.style.display = "block";
-            bgm.play();
-            init();
-        }
-
+        // Load assets
+        const assetsToLoad = [];
         const paddleImg = new Image();
         paddleImg.src = "img/paddle.png";
+        assetsToLoad.push(new Promise(resolve => { paddleImg.onload = resolve; paddleImg.onerror = () => console.error("Failed to load paddle.png"); }));
 
         const ballImg = new Image();
         ballImg.src = "img/ball.png";
+        assetsToLoad.push(new Promise(resolve => { ballImg.onload = resolve; ballImg.onerror = () => console.error("Failed to load ball.png"); }));
 
         const blockImages = [];
         for (let i = 1; i <= 3; i++) {
             const img = new Image();
             img.src = `img/b${i}.png`;
             blockImages.push(img);
+            assetsToLoad.push(new Promise(resolve => { img.onload = resolve; img.onerror = () => console.error(`Failed to load b${i}.png`); }));
         }
 
+        // Canvas dimensions (will be updated to full screen)
+        let canvasWidth = window.innerWidth;
+        let canvasHeight = window.innerHeight;
+        let isPortrait = window.innerHeight > window.innerWidth;
+
+        // Initialize game objects
         let ball, paddle, bricks, score, level, lives, ballSpeed;
-        const brickRowCount = 5;
-        const brickColumnCount = 10;
-        const brickWidth = 70;
-        const brickHeight = 20;
-        const brickPadding = 10;
-        const brickOffsetTop = 60;
-        const brickOffsetLeft = 35;
+        let brickRowCount = 5;
+        let brickColumnCount = 10;
+        let brickWidth, brickHeight, brickPadding, brickOffsetTop, brickOffsetLeft;
         const totalLevels = 10;
+        let paddleSpeed = 0;
+
+        function updateGameDimensions() {
+            // Set canvas to full screen
+            canvasWidth = window.innerWidth;
+            canvasHeight = window.innerHeight;
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+
+            isPortrait = window.innerHeight > window.innerWidth;
+
+            // Update game elements based on new dimensions
+            brickColumnCount = isPortrait ? 8 : 10;
+            brickRowCount = isPortrait ? 6 : 5;
+            brickWidth = (canvasWidth - canvasWidth * 0.1) / (brickColumnCount + 1);
+            brickHeight = brickWidth * 0.4;
+            brickPadding = brickWidth * 0.05;
+            // Giữ brickOffsetTop đã giảm để khối gần paddle hơn trên mobile ở chế độ đứng
+            brickOffsetTop = isMobile ? (isPortrait ? canvasHeight * 0.28 : canvasHeight * 0.15) : canvasHeight * 0.15;
+            brickOffsetLeft = (canvasWidth - (brickColumnCount * (brickWidth + brickPadding) - brickPadding)) / 2;
+
+            // Paddle
+            paddle = {
+                width: isMobile ? canvasWidth * 0.25 : canvasWidth * 0.2,
+                height: canvasHeight * 0.03,
+                x: (canvasWidth - (isMobile ? canvasWidth * 0.25 : canvasWidth * 0.2)) / 2
+            };
+            paddleOffsetY = isMobile && isPortrait ? canvasHeight * 0.15 : canvasHeight * 0.03;
+
+            // Ball
+            ball = {
+                radius: isMobile ? canvasWidth * 0.02 : canvasWidth * 0.01,
+                x: canvasWidth / 2,
+
+                y: isMobile ? canvasHeight - (canvasHeight * 0.2) : canvasHeight - (canvasHeight * 0.1),
+                dx: ballSpeed,
+                dy: -ballSpeed,
+            };
+
+            // Reset bricks
+            if (bricks && bricks.length > 0) {
+                bricks = generateLevel(level);
+            }
+        }
+
+        // Initial setup
+        updateGameDimensions();
+        window.addEventListener("resize", updateGameDimensions);
+        window.addEventListener("orientationchange", () => setTimeout(updateGameDimensions, 100));
+
+        function startGame() {
+            Promise.all(assetsToLoad).then(() => {
+                playerName = document.getElementById("playerName").value || "Player";
+                localStorage.setItem("playerName", playerName);
+                lobby.style.display = "none";
+                canvas.style.display = "block";
+                bgm.play().catch(err => console.error("Error playing bgm:", err));
+                init();
+            }).catch(err => {
+                console.error("Error loading assets:", err);
+                alert("Failed to load game assets. Please check the file paths and try again.");
+            });
+        }
 
         function init() {
             score = 0;
             level = 1;
             lives = 3;
-            ballSpeed = 2.5;
+            // Tốc độ bóng trên mobile đã được tăng trước đó
+            ballSpeed = isMobile ? canvasWidth * 0.004 : canvasWidth * 0.002;
+            const paddleMoveSpeed = isMobile ? canvasWidth * 0.001 : canvasWidth * 0.001;
             resetLevel();
             document.addEventListener("mousemove", mouseMoveHandler);
+            document.addEventListener("touchmove", touchMoveHandler, { passive: false });
+            document.addEventListener("keydown", keyDownHandler);
+            document.addEventListener("keyup", keyUpHandler);
             requestAnimationFrame(draw);
         }
 
         function resetLevel() {
-            ball = { x: canvas.width / 2, y: canvas.height - 30, dx: ballSpeed, dy: -ballSpeed, radius: 10 };
-            paddle = { height: 20, width: 100, x: (canvas.width - 100) / 2 };
+            ball = {
+                x: canvasWidth / 2,
+                y: isMobile ? canvasHeight - (canvasHeight * 0.2) : canvasHeight - (canvasHeight * 0.1),
+                dx: ballSpeed,
+                dy: -ballSpeed,
+                radius: isMobile ? canvasWidth * 0.02 : canvasWidth * 0.01,
+            };
+            paddle = {
+                x: (canvasWidth - paddle.width) / 2,
+                width: paddle.width,
+                height: paddle.height
+            };
             bricks = generateLevel(level);
         }
 
@@ -183,11 +307,11 @@
                         case 0: draw = true; break;
                         case 1: draw = r >= c / 2 && r <= brickRowCount - 1 - c / 2; break;
                         case 2: draw = (r === c || r === brickRowCount - c - 1); break;
-                        case 3: draw = Math.sqrt((r - 2) * (r - 2) + (c - 5) * (c - 5)) < 3; break;
+                        case 3: draw = Math.sqrt((r - 2) * (r - 2) + (c - (brickColumnCount / 2)) * (c - (brickColumnCount / 2))) < 3; break;
                         case 4: draw = r % 2 === 0; break;
                         case 5: draw = (r + c) % 2 === 0; break;
                         case 6: draw = c === 0 || c === brickColumnCount - 1 || r === 0; break;
-                        case 7: draw = c <= 2 || c >= 7; break;
+                        case 7: draw = c <= 2 || c >= brickColumnCount - 3; break;
                         case 8: draw = (r + c) % 3 === 0; break;
                         case 9: draw = true; break;
                     }
@@ -200,24 +324,43 @@
 
         function mouseMoveHandler(e) {
             let relativeX = e.clientX - canvas.offsetLeft;
-            if (relativeX > 0 && relativeX < canvas.width) {
+            if (relativeX > 0 && relativeX < canvasWidth) {
                 paddle.x = relativeX - paddle.width / 2;
             }
         }
 
+        function touchMoveHandler(e) {
+            e.preventDefault();
+            let touch = e.touches[0];
+            let relativeX = touch.clientX - canvas.offsetLeft;
+            if (relativeX > 0 && relativeX < canvasWidth) {
+                paddle.x = relativeX - paddle.width / 2;
+            }
+        }
+
+        function keyDownHandler(e) {
+            if (e.key === "ArrowLeft") paddleSpeed = -paddleMoveSpeed;
+            if (e.key === "ArrowRight") paddleSpeed = paddleMoveSpeed;
+        }
+
+        function keyUpHandler(e) {
+            if (e.key === "ArrowLeft" || e.key === "ArrowRight") paddleSpeed = 0;
+        }
+
         function drawBall() {
-            ctx.beginPath();
-            ctx.drawImage(ballImg,ball.x, ball.y, 25,25);
-            // ctx.fillStyle = "#FFFF33";
+            ctx.save();
+            ctx.translate(ball.x, ball.y);
+            ctx.scale(1 + Math.sin(Date.now() * 0.005) * 0.05, 1 + Math.sin(Date.now() * 0.005) * 0.05);
+            ctx.drawImage(ballImg, -ball.radius, -ball.radius, ball.radius * 2, ball.radius * 2);
+            ctx.restore();
             ctx.shadowColor = "#FFFF33";
-            ctx.shadowBlur = 20;
+            ctx.shadowBlur = 15;
             ctx.fill();
-            ctx.closePath();
             ctx.shadowBlur = 0;
         }
 
         function drawPaddle() {
-            ctx.drawImage(paddleImg, paddle.x, canvas.height - paddle.height - 10, paddle.width, paddle.height);
+            ctx.drawImage(paddleImg, paddle.x, canvasHeight - paddle.height - paddleOffsetY, paddle.width, paddle.height);
         }
 
         function drawBricks() {
@@ -244,19 +387,19 @@
                             ball.dy = -ball.dy;
                             b.status = 0;
                             score += 10;
-                            hitSound.play();
+                            hitSound.play().catch(err => console.error("Error playing hitSound:", err));
                             if (score > highScore) {
                                 highScore = score;
                                 localStorage.setItem("highScore", highScore);
                             }
                             if (isLevelCleared()) {
-                                winSound.play();
+                                winSound.play().catch(err => console.error("Error playing winSound:", err));
                                 level++;
                                 if (level > totalLevels) {
                                     alert("Congratulations! You finished all levels!");
                                     document.location.reload();
                                 } else {
-                                    ballSpeed += 0.5;
+                                    ballSpeed += isMobile ? canvasWidth * 0.0002 : canvasWidth * 0.001;
                                     resetLevel();
                                 }
                             }
@@ -276,41 +419,59 @@
         }
 
         function drawHUD() {
-            ctx.font = "18px 'Orbitron', sans-serif";
-            ctx.fillStyle = "#00ffff";
-            ctx.shadowColor = "#00ffff";
+            ctx.font = `bold ${isMobile ? canvasWidth * 0.035 : canvasWidth * 0.02}px Orbitron`;
+
+            ctx.fillStyle = "#0ff";
+            ctx.shadowColor = "#0ff";
             ctx.shadowBlur = 10;
-            ctx.fillText(`Player: ${playerName}`, 10, 25);
-            ctx.fillText(`Score: ${score}`, 10, 50);
-            ctx.fillText(`High Score: ${highScore}`, 160, 25);
-            ctx.fillText(`Level: ${level}`, canvas.width - 130, 25);
-            ctx.fillText(`Lives: ${lives}`, canvas.width - 130, 50);
+            if (isPortrait) {
+                // Chế độ đứng: giữ nguyên hiển thị như hiện tại
+                ctx.fillText(`Player: ${playerName}`, canvasWidth * 0.05, canvasHeight * 0.05);
+                ctx.fillText(`Score: ${score}`, canvasWidth * 0.05, canvasHeight * 0.08);
+                ctx.fillText(`High Score: ${highScore}`, canvasWidth * 0.05, canvasHeight * 0.11);
+                ctx.fillText(`Level: ${level}`, canvasWidth * 0.75, canvasHeight * 0.05);
+                ctx.fillText(`Lives: ${lives}`, canvasWidth * 0.75, canvasHeight * 0.08);
+            } else if (isMobile) {
+                // Chế độ ngang trên điện thoại: chia thành 2 hàng
+                ctx.fillText(`Player: ${playerName} | Score: ${score}`, canvasWidth * 0.05, canvasHeight * 0.05);
+                ctx.fillText(`High Score: ${highScore}`, canvasWidth * 0.05, canvasHeight * 0.12);
+                ctx.fillText(`Level: ${level}`, canvasWidth * 0.75, canvasHeight * 0.05);
+                ctx.fillText(`Lives: ${lives}`, canvasWidth * 0.75, canvasHeight * 0.12);
+            } else {
+                // Chế độ ngang trên máy tính: giữ nguyên hiển thị 1 hàng
+                ctx.fillText(`Player: ${playerName} | Score: ${score} | High Score: ${highScore}`, canvasWidth * 0.05, canvasHeight * 0.07);
+                ctx.fillText(`Level: ${level} | Lives: ${lives}`, canvasWidth * 0.75, canvasHeight * 0.07);
+            }
             ctx.shadowBlur = 0;
         }
 
         function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            paddle.x += paddleSpeed;
+            if (paddle.x < 0) paddle.x = 0;
+            if (paddle.x > canvasWidth - paddle.width) paddle.x = canvasWidth - paddle.width;
             drawBall();
             drawPaddle();
             drawBricks();
             drawHUD();
             collisionDetection();
-            if (ball.x + ball.dx > canvas.width - ball.radius || ball.x + ball.dx < ball.radius) ball.dx = -ball.dx;
+            if (ball.x + ball.dx > canvasWidth - ball.radius || ball.x + ball.dx < ball.radius) ball.dx = -ball.dx;
             if (ball.y + ball.dy < ball.radius) ball.dy = -ball.dy;
-            else if (ball.y + ball.dy > canvas.height - ball.radius - 25) {
+            else if (ball.y + ball.dy > canvasHeight - ball.radius - paddle.height - paddleOffsetY) {
                 if (ball.x > paddle.x && ball.x < paddle.x + paddle.width) {
                     ball.dy = -ball.dy;
                 } else {
                     lives--;
                     if (!lives) {
+                        gameOverSound.play().catch(err => console.error("Error playing gameOverSound:", err));
                         alert("Game Over");
                         document.location.reload();
                     } else {
-                        ball.x = canvas.width / 2;
-                        ball.y = canvas.height - 30;
-                        ball.dx = ballSpeed;
+                        ball.x = canvasWidth / 2;
+                        y: isMobile ? canvasHeight - (canvasHeight * 0.2) : canvasHeight - (canvasHeight * 0.1),
+                            ball.dx = ballSpeed;
                         ball.dy = -ballSpeed;
-                        paddle.x = (canvas.width - paddle.width) / 2;
+                        paddle.x = (canvasWidth - paddle.width) / 2;
                     }
                 }
             }
@@ -320,4 +481,5 @@
         }
     </script>
 </body>
+
 </html>
