@@ -251,18 +251,8 @@
 
         // Initial setup
         updateGameDimensions();
-        window.addEventListener("resize", () => {
-            updateGameDimensions();
-            resetLevel(); //  Thêm dòng này để đảm bảo canvas scale lại đúng
-        });
-
-        window.addEventListener("orientationchange", () => {
-            setTimeout(() => {
-                updateGameDimensions();
-                resetLevel(); //  Reset lại level theo tỷ lệ mới
-            }, 100);
-        });
-
+        window.addEventListener("resize", updateGameDimensions);
+        window.addEventListener("orientationchange", () => setTimeout(updateGameDimensions, 100));
 
         function startGame() {
             Promise.all(assetsToLoad).then(() => {
