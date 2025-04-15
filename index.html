@@ -269,13 +269,14 @@
                 localStorage.setItem("playerName", playerName);
                 lobby.style.display = "none";
                 canvas.style.display = "block";
+                requestFullscreen();
                 bgm.play().catch(err => console.error("Error playing bgm:", err));
                 init();
             }).catch(err => {
                 console.error("Error loading assets:", err);
                 alert("Failed to load game assets. Please check the file paths and try again.");
             });
-            requestFullscreen();
+           
         }
 
         function init() {
