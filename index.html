@@ -254,13 +254,13 @@
         window.addEventListener("resize", updateGameDimensions);
         window.addEventListener("orientationchange", () => setTimeout(updateGameDimensions, 100));
         function requestFullscreen() {
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen();
-            } else if (elem.webkitRequestFullscreen) { /* Safari */
-                elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) { /* IE11 */
-                elem.msRequestFullscreen();
+            const canvas = document.getElementById("gameCanvas");
+            if (canvas.requestFullscreen) {
+                canvas.requestFullscreen();
+            } else if (canvas.webkitRequestFullscreen) {
+                canvas.webkitRequestFullscreen();
+            } else if (canvas.msRequestFullscreen) {
+                canvas.msRequestFullscreen();
             }
         }
         function startGame() {
@@ -276,7 +276,7 @@
                 console.error("Error loading assets:", err);
                 alert("Failed to load game assets. Please check the file paths and try again.");
             });
-           
+
         }
 
         function init() {
