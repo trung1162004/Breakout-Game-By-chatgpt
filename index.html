@@ -222,7 +222,7 @@
             brickHeight = brickWidth * 0.4;
             brickPadding = brickWidth * 0.05;
             // Giữ brickOffsetTop đã giảm để khối gần paddle hơn trên mobile ở chế độ đứng
-            brickOffsetTop = isMobile ? (isPortrait ? canvasHeight * 0.28 : canvasHeight * 0.15) : canvasHeight * 0.15;
+            brickOffsetTop = isMobile ? (isPortrait ? canvasHeight * 0.15 : canvasHeight * 0.15) : canvasHeight * 0.15;
             brickOffsetLeft = (canvasWidth - (brickColumnCount * (brickWidth + brickPadding) - brickPadding)) / 2;
 
             // Paddle
@@ -231,14 +231,14 @@
                 height: canvasHeight * 0.03,
                 x: (canvasWidth - (isMobile ? canvasWidth * 0.25 : canvasWidth * 0.2)) / 2
             };
-            paddleOffsetY = isMobile && isPortrait ? canvasHeight * 0.15 : canvasHeight * 0.03;
+            paddleOffsetY = isMobile && isPortrait ? canvasHeight * 0.4 : canvasHeight * 0.03;
 
             // Ball
             ball = {
                 radius: isMobile ? canvasWidth * 0.02 : canvasWidth * 0.01,
                 x: canvasWidth / 2,
 
-                y: isMobile ? canvasHeight - (canvasHeight * 0.2) : canvasHeight - (canvasHeight * 0.1),
+                y: isMobile ? canvasHeight - (canvasHeight * 0.45) : canvasHeight - (canvasHeight * 0.1),
                 dx: ballSpeed,
                 dy: -ballSpeed,
             };
@@ -297,7 +297,7 @@
         function resetLevel() {
             ball = {
                 x: canvasWidth / 2,
-                y: isMobile ? canvasHeight - (canvasHeight * 0.2) : canvasHeight - (canvasHeight * 0.1),
+                y: isMobile ? canvasHeight - (canvasHeight * 0.45) : canvasHeight - (canvasHeight * 0.1),
                 dx: ballSpeed,
                 dy: -ballSpeed,
                 radius: isMobile ? canvasWidth * 0.02 : canvasWidth * 0.01,
