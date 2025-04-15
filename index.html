@@ -253,7 +253,16 @@
         updateGameDimensions();
         window.addEventListener("resize", updateGameDimensions);
         window.addEventListener("orientationchange", () => setTimeout(updateGameDimensions, 100));
-
+        function requestFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            }
+        }
         function startGame() {
             Promise.all(assetsToLoad).then(() => {
                 playerName = document.getElementById("playerName").value || "Player";
@@ -266,6 +275,7 @@
                 console.error("Error loading assets:", err);
                 alert("Failed to load game assets. Please check the file paths and try again.");
             });
+            requestFullscreen();
         }
 
         function init() {
@@ -436,10 +446,10 @@
                 ctx.fillText(`Lives: ${lives}`, canvasWidth * 0.75, canvasHeight * 0.08);
             } else if (isMobile) {
                 // Chế độ ngang trên điện thoại: chia thành 2 hàng
-                ctx.fillText(`Player: ${playerName} | Score: ${score}`, canvasWidth * 0.06, canvasHeight * 0.05);
-                ctx.fillText(`High Score: ${highScore}`, canvasWidth * 0.06, canvasHeight * 0.12);
-                ctx.fillText(`Level: ${level}`, canvasWidth * 0.65, canvasHeight * 0.05);
-                ctx.fillText(`Lives: ${lives}`, canvasWidth * 0.65, canvasHeight * 0.12);
+                ctx.fillText(`Player: ${playerName} | Score: ${score}`, canvasWidth * 0.05, canvasHeight * 0.05);
+                ctx.fillText(`High Score: ${highScore}`, canvasWidth * 0.05, canvasHeight * 0.12);
+                ctx.fillText(`Level: ${level}`, canvasWidth * 0.75, canvasHeight * 0.05);
+                ctx.fillText(`Lives: ${lives}`, canvasWidth * 0.75, canvasHeight * 0.12);
             } else {
                 // Chế độ ngang trên máy tính: giữ nguyên hiển thị 1 hàng
                 ctx.fillText(`Player: ${playerName} | Score: ${score} | High Score: ${highScore}`, canvasWidth * 0.05, canvasHeight * 0.07);
