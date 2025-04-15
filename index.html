@@ -433,7 +433,7 @@
         }
 
         function drawHUD() {
-            ctx.font = `bold ${isMobile ? canvasWidth * 0.035 : canvasWidth * 0.02}px Orbitron`;
+            ctx.font = `bold ${isMobile ? canvasWidth * 0.02 : canvasWidth * 0.02}px Orbitron`;
 
             ctx.fillStyle = "#0ff";
             ctx.shadowColor = "#0ff";
@@ -447,10 +447,10 @@
                 ctx.fillText(`Lives: ${lives}`, canvasWidth * 0.75, canvasHeight * 0.08);
             } else if (isMobile) {
                 // Chế độ ngang trên điện thoại: chia thành 2 hàng
-                ctx.fillText(`Player: ${playerName} | Score: ${score}`, canvasWidth * 0.05, canvasHeight * 0.05);
-                ctx.fillText(`High Score: ${highScore}`, canvasWidth * 0.05, canvasHeight * 0.12);
-                ctx.fillText(`Level: ${level}`, canvasWidth * 0.75, canvasHeight * 0.05);
-                ctx.fillText(`Lives: ${lives}`, canvasWidth * 0.75, canvasHeight * 0.12);
+                ctx.fillText(`Player: ${playerName} | Score: ${score}`, canvasWidth * 0.05, canvasHeight * 0.11);
+                ctx.fillText(`High Score: ${highScore}`, canvasWidth * 0.05, canvasHeight * 0.145);
+                ctx.fillText(`Level: ${level}`, canvasWidth * 0.75, canvasHeight * 0.11);
+                ctx.fillText(`Lives: ${lives}`, canvasWidth * 0.75, canvasHeight * 0.145);
             } else {
                 // Chế độ ngang trên máy tính: giữ nguyên hiển thị 1 hàng
                 ctx.fillText(`Player: ${playerName} | Score: ${score} | High Score: ${highScore}`, canvasWidth * 0.05, canvasHeight * 0.07);
