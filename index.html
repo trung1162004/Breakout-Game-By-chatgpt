@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Breakout Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -16,7 +17,7 @@
         html,
         body {
             width: 100vw;
-            height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             background: #000;
             color: #fff;
@@ -24,6 +25,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         #container {
@@ -204,30 +207,11 @@
         let paddleSpeed = 0;
 
         function updateGameDimensions() {
-            // Kích thước màn hình thực tế
-            const screenWidth = window.innerWidth;
-            const screenHeight = window.innerHeight;
-
-            // Điều chỉnh kích thước khung trò chơi trên điện thoại
-            if (isMobile) {
-                // Trừ 5% phía trên và 5% phía dưới (tổng cộng 10% chiều cao)
-                const marginTopBottom = screenHeight * 0.05; // 5% chiều cao màn hình
-                canvasWidth = screenWidth;
-                canvasHeight = screenHeight - 2 * marginTopBottom; // Trừ đi khoảng trên và dưới
-            } else {
-                // Trên máy tính, giữ nguyên kích thước đầy màn hình
-                canvasWidth = screenWidth;
-                canvasHeight = screenHeight;
-            }
-
-            // Gán kích thước cho canvas
+            // Set canvas to full screen
+            canvasWidth = window.innerWidth;
+            canvasHeight = window.innerHeight;
             canvas.width = canvasWidth;
             canvas.height = canvasHeight;
-
-            // Căn giữa canvas trên màn hình (chủ yếu điều chỉnh vị trí Y vì chỉ giảm chiều cao)
-            canvas.style.position = "absolute";
-            canvas.style.left = "0px"; // Căn giữa theo chiều ngang (không cần thay đổi vì giữ nguyên chiều rộng)
-            canvas.style.top = (isMobile ? marginTopBottom : 0) + "px"; // Đẩy canvas xuống một chút để tránh thanh trạng thái
 
             isPortrait = window.innerHeight > window.innerWidth;
 
@@ -237,7 +221,8 @@
             brickWidth = (canvasWidth - canvasWidth * 0.1) / (brickColumnCount + 1);
             brickHeight = brickWidth * 0.4;
             brickPadding = brickWidth * 0.05;
-            brickOffsetTop = isMobile ? (isPortrait ? canvasHeight * 0.08 : canvasHeight * 0.05) : canvasHeight * 0.15;
+            // Giữ brickOffsetTop đã giảm để khối gần paddle hơn trên mobile ở chế độ đứng
+            brickOffsetTop = isMobile ? (isPortrait ? canvasHeight * 0.28 : canvasHeight * 0.15) : canvasHeight * 0.15;
             brickOffsetLeft = (canvasWidth - (brickColumnCount * (brickWidth + brickPadding) - brickPadding)) / 2;
 
             // Paddle
@@ -246,15 +231,14 @@
                 height: canvasHeight * 0.03,
                 x: (canvasWidth - (isMobile ? canvasWidth * 0.25 : canvasWidth * 0.2)) / 2
             };
-
-            // Paddle offset from bottom
             paddleOffsetY = isMobile && isPortrait ? canvasHeight * 0.15 : canvasHeight * 0.03;
 
             // Ball
             ball = {
                 radius: isMobile ? canvasWidth * 0.02 : canvasWidth * 0.01,
                 x: canvasWidth / 2,
-                y: isMobile ? canvasHeight - (canvasHeight * 0.1) : canvasHeight - (canvasHeight * 0.1),
+
+                y: isMobile ? canvasHeight - (canvasHeight * 0.2) : canvasHeight - (canvasHeight * 0.1),
                 dx: ballSpeed,
                 dy: -ballSpeed,
             };
