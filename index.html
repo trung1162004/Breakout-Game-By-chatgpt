@@ -171,9 +171,34 @@
         const gameOverSound = document.getElementById("gameOverSound");
 
         let playerName = localStorage.getItem("playerName") || "Player";
-        let highScore = localStorage.getItem("highScore") || 0;
+        let highScore = parseInt(localStorage.getItem("highScore")) || 0;
         document.getElementById("playerName").value = playerName;
         document.getElementById("highScoreDisplay").textContent = `High Score: ${highScore}`;
+
+        // Power-up setup
+        const powerUps = [];
+        const powerImages = {
+            longPaddle: new Image(),
+            slowBall: new Image(),
+            doubleScore: new Image(),
+            extraLife: new Image(),
+            multiBall: new Image(),
+            minus100: new Image(),
+            minus300: new Image(),
+            shrinkPaddle: new Image()
+        };
+        powerImages.longPaddle.src = "img/power-paddle.png";
+        powerImages.slowBall.src = "img/power-ball.png";
+        powerImages.doubleScore.src = "img/power-x2.png";
+        powerImages.extraLife.src = "img/power-life.png";
+        powerImages.multiBall.src = "img/ball.png";
+        powerImages.minus100.src = "img/minus100.png";
+        powerImages.minus300.src = "img/minus300.png";
+        powerImages.shrinkPaddle.src = "img/shrinkpaddle.png";
+        
+
+        const powerupSound = new Audio("sound/power-up.mp3");
+
 
         // Load assets
         const assetsToLoad = [];
@@ -206,7 +231,10 @@
         let brickColumnCount = 10;
         let brickWidth, brickHeight, brickPadding, brickOffsetTop, brickOffsetLeft;
         const totalLevels = 10;
-        let paddleSpeed = 0;
+        let doubleScoreActive = false;
+        let slowBallActive = false;
+        let slowBallTimer = null;
+        let balls = [];
 
         function updateGameDimensions() {
             // Cập nhật kích thước canvas
@@ -229,9 +257,9 @@
 
             // Paddle
             paddle = {
-                width: isMobile ? canvasWidth * 0.25 : canvasWidth * 0.2,
+                width: isMobile ? canvasWidth * 0.25 : canvasWidth * 0.1,
                 height: canvasHeight * 0.03,
-                x: (canvasWidth - (isMobile ? canvasWidth * 0.25 : canvasWidth * 0.2)) / 2
+                x: (canvasWidth - (isMobile ? canvasWidth * 0.25 : canvasWidth * 0.1)) / 2
             };
             paddleOffsetY = isMobile && isPortrait ? canvasHeight * 0.4 : canvasHeight * 0.03;
 
@@ -292,8 +320,6 @@
             resetLevel();
             document.addEventListener("mousemove", mouseMoveHandler);
             document.addEventListener("touchmove", touchMoveHandler, { passive: false });
-            document.addEventListener("keydown", keyDownHandler);
-            document.addEventListener("keyup", keyUpHandler);
             requestAnimationFrame(draw);
         }
 
@@ -305,9 +331,10 @@
                 dy: -ballSpeed,
                 radius: isMobile ? canvasWidth * 0.02 : canvasWidth * 0.01
             };
+            balls = [ball];
             paddle = {
                 x: (canvasWidth - paddle.width) / 2,
-                width: isMobile ? canvasWidth * 0.25 : canvasWidth * 0.2,
+                width: isMobile ? canvasWidth * 0.25 : canvasWidth * 0.1,
                 height: canvasHeight * 0.03
             };
             bricks = generateLevel(level);
@@ -332,8 +359,48 @@
                         case 8: draw = (r + c) % 3 === 0; break;
                         case 9: draw = true; break;
                     }
+
+                    // Xác định tỷ lệ HP theo level
+                    const drawhp = Math.random() < 0.85;
+                    // const imghp = blockImages[(level - 1) % blockImages.length];
+                    let chance2hp = 0, chance3hp = 0;
+                    if (level === 2) {
+                        chance2hp = 0.1;
+                    } else if (level === 3) {
+                        chance2hp = 0.2;
+                    } else if (level === 4) {
+                        chance2hp = 0.3;
+                        chance3hp = 0.05;
+                    } else if (level === 5) {
+                        chance2hp = 0.4;
+                        chance3hp = 0.1;
+                    } else if (level === 6) {
+                        chance2hp = 0.4;
+                        chance3hp = 0.15;
+                    } else if (level === 7) {
+                        chance2hp = 0.4;
+                        chance3hp = 0.2;
+                    } else if (level === 8) {
+                        chance2hp = 0.4;
+                        chance3hp = 0.25;
+                    } else if (level === 9) {
+                        chance2hp = 0.4;
+                        chance3hp = 0.3;
+                    } else if (level >= 10) {
+                        chance2hp = 0.4;
+                        chance3hp = 0.35;
+                    }
+
+
+                    let hp = 1;
+                    const rand = Math.random();
+                    if (rand < chance3hp) {
+                        hp = 3;
+                    } else if (rand < chance3hp + chance2hp) {
+                        hp = 2;
+                    }
                     const img = blockImages[Math.floor(Math.random() * blockImages.length)];
-                    bricks[c][r] = { x: 0, y: 0, status: draw ? 1 : 0, img: img };
+                    bricks[c][r] = { x: 0, y: 0, status: draw ? 1 : 0, img: img, hp: drawhp ? hp : 0 };
                 }
             }
             return bricks;
@@ -354,26 +421,14 @@
                 paddle.x = relativeX - paddle.width / 2;
             }
         }
-
-        function keyDownHandler(e) {
-            const paddleMoveSpeed = isMobile ? canvasWidth * 0.01 : canvasWidth * 0.005;
-            if (e.key === "ArrowLeft") paddleSpeed = -paddleMoveSpeed;
-            if (e.key === "ArrowRight") paddleSpeed = paddleMoveSpeed;
-        }
-
-        function keyUpHandler(e) {
-            if (e.key === "ArrowLeft" || e.key === "ArrowRight") paddleSpeed = 0;
-        }
-
-        function drawBall() {
+        function drawBall(b) {
             ctx.save();
-            ctx.translate(ball.x, ball.y);
+            ctx.translate(b.x, b.y);
             ctx.scale(1 + Math.sin(Date.now() * 0.005) * 0.05, 1 + Math.sin(Date.now() * 0.005) * 0.05);
-            ctx.drawImage(ballImg, -ball.radius, -ball.radius, ball.radius * 2, ball.radius * 2);
+            ctx.drawImage(ballImg, -b.radius, -b.radius, b.radius * 2, b.radius * 2);
             ctx.restore();
             ctx.shadowColor = "#FFFF33";
             ctx.shadowBlur = 15;
-            ctx.fill();
             ctx.shadowBlur = 0;
         }
 
@@ -390,7 +445,18 @@
                         let brickY = r * (brickHeight + brickPadding) + brickOffsetTop;
                         b.x = brickX;
                         b.y = brickY;
+                        ctx.save();
+                        if (b.hp === 3) {
+                            ctx.shadowColor = "red";
+                            ctx.shadowBlur = 20;
+                        } else if (b.hp === 2) {
+                            ctx.shadowColor = "#00f"; // xanh dương
+                            ctx.shadowBlur = 15;
+                        } else {
+                            ctx.shadowBlur = 0;
+                        }
                         ctx.drawImage(b.img, brickX, brickY, brickWidth, brickHeight);
+                        ctx.restore();
                     }
                 }
             }
@@ -399,17 +465,63 @@
         function collisionDetection() {
             for (let c = 0; c < brickColumnCount; c++) {
                 for (let r = 0; r < brickRowCount; r++) {
-                    let b = bricks[c][r];
-                    if (b.status === 1) {
-                        if (ball.x > b.x && ball.x < b.x + brickWidth && ball.y > b.y && ball.y < b.y + brickHeight) {
-                            ball.dy = -ball.dy;
-                            b.status = 0;
-                            score += 10;
+                    const brick = bricks[c][r];
+                    if (brick.status !== 1) continue;
+
+                    for (let b of balls) {
+                        if (
+                            b.x > brick.x &&
+                            b.x < brick.x + brickWidth &&
+                            b.y > brick.y &&
+                            b.y < brick.y + brickHeight
+                        ) {
+                            const overlapX = (b.x - (brick.x + brickWidth / 2)) / (brickWidth / 2);
+                            const overlapY = (b.y - (brick.y + brickHeight / 2)) / (brickHeight / 2);
+
+                            if (Math.abs(overlapX) > Math.abs(overlapY)) {
+                                // Va vào bên trái hoặc phải
+                                b.dx = -b.dx;
+                            } else {
+                                // Va vào trên hoặc dưới
+                                b.dy = -b.dy;
+                            }
+
+                            // Trừ máu
+                            brick.hp--;
+
+                            // Cộng điểm
+                            if (brick.hp <= 0) {
+                                brick.status = 0;
+                                score += doubleScoreActive ? 20 : 10;
+
+                                // Power-up rơi ra (20% xác suất)
+                                if (Math.random() < 0.5) {
+                                    const types = [
+                                        "longPaddle", "slowBall", "doubleScore", "extraLife", "multiBall",
+                                        "minus100", "minus300", "shrinkPaddle"
+                                    ];
+                                    const type = types[Math.floor(Math.random() * types.length)];
+                                    const size = canvasWidth * 0.03;
+                                    powerUps.push({
+                                        x: brick.x + brickWidth / 2 - size / 2,
+                                        y: brick.y + brickHeight,
+                                        width: size,
+                                        height: size,
+                                        type: type,
+                                        speed: 2
+                                    });
+                                }
+                            } else {
+                                score += doubleScoreActive ? 10 : 5;
+                            }
+
                             hitSound.play().catch(err => console.error("Error playing hitSound:", err));
+
                             if (score > highScore) {
                                 highScore = score;
                                 localStorage.setItem("highScore", highScore);
                             }
+
                             if (isLevelCleared()) {
                                 winSound.play().catch(err => console.error("Error playing winSound:", err));
                                 level++;
@@ -417,15 +529,19 @@
                                     alert("Congratulations! You finished all levels!");
                                     document.location.reload();
                                 } else {
-                                    ballSpeed += isMobile ? canvasWidth * 0.0002 : canvasWidth * 0.001;
+                                    ballSpeed += isMobile ? canvasWidth * 0.0003 : canvasWidth * 0.0005;
                                     resetLevel();
                                 }
                             }
+
+                            break; // Đảm bảo 1 bóng chỉ va chạm 1 brick mỗi frame
                         }
                     }
                 }
             }
         }
+
+
 
         function isLevelCleared() {
             for (let c = 0; c < brickColumnCount; c++) {
@@ -435,6 +551,104 @@
             }
             return true;
         }
+
+        function drawPowerUps() {
+            for (let i = powerUps.length - 1; i >= 0; i--) {
+                const p = powerUps[i];
+                p.y += p.speed;
+
+                // Vẽ hình power-up
+                const img = powerImages[p.type];
+                if (img.complete) {
+                    ctx.drawImage(img, p.x - p.width / 2, p.y, p.width, p.height);
+                }
+
+                // Nếu chạm paddle
+                if (
+                    p.y + p.height >= canvasHeight - paddle.height - paddleOffsetY &&
+                    p.x > paddle.x &&
+                    p.x < paddle.x + paddle.width
+                ) {
+                    activatePowerUp(p.type);
+                    powerupSound.play().catch(err => console.error("Powerup sound error:", err));
+                    powerUps.splice(i, 1);
+                }
+
+                // Nếu rơi xuống ngoài màn
+                else if (p.y > canvasHeight) {
+                    powerUps.splice(i, 1);
+                }
+            }
+        }
+        function activatePowerUp(type) {
+            if (type === "longPaddle") {
+                paddle.width *= 1.5;
+                setTimeout(() => {
+                    paddle.width /= 1.5;
+                }, 10000); // hiệu ứng 10s
+            } else if (type === "slowBall") {
+                if (!slowBallActive) {
+                    for (let b of balls) {
+                        b.dx *= 0.5;
+                        b.dy *= 0.5;
+                    }
+                    slowBallActive = true;
+                    // Clear nếu có timer cũ
+                    if (slowBallTimer) clearTimeout(slowBallTimer);
+
+                    slowBallTimer = setTimeout(() => {
+                        for (let b of balls) {
+                            b.dx *= 2;
+                            b.dy *= 2;
+                        }
+                        slowBallActive = false;
+                        slowBallTimer = null;
+                    }, 8000); // Ví dụ: hiệu lực 8 giây
+                }
+            } else if (type === "doubleScore") {
+                doubleScoreActive = true;
+                setTimeout(() => {
+                    doubleScoreActive = false;
+                }, 10000); // hiệu ứng 10s
+            } else if (type === "extraLife") {
+                if (lives < 3) lives++;
+            } else if (type === "multiBall") {
+                const source = balls[0]; // clone từ bóng đầu
+                const newBall = {
+                    x: source.x,
+                    y: source.y,
+                    dx: -source.dx,
+                    dy: -source.dy,
+                    radius: source.radius
+                };
+                balls.push(newBall);
+
+                // Tự động xóa bóng phụ sau 10 giây
+                setTimeout(() => {
+                    const idx = balls.indexOf(newBall);
+                    if (idx !== -1 && balls.length > 1) {
+                        balls.splice(idx, 1);
+                    }
+                }, 10000);
+
+            } else if (type === "minus100") {
+                score = Math.max(0, score - 100);
+            }
+
+            else if (type === "minus300") {
+                score = Math.max(0, score - 300);
+            }
+
+            else if (type === "shrinkPaddle") {
+                paddle.width *= 0.5;
+
+                // Tự khôi phục sau 8 giây
+                setTimeout(() => {
+                    paddle.width *= 2;
+                }, 8000);
+            }
+        }
+
 
         function drawHUD() {
             ctx.font = `bold ${isMobile ? canvasWidth * 0.02 : canvasWidth * 0.02}px Orbitron`;
@@ -463,50 +677,78 @@
 
         function draw() {
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-            paddle.x += paddleSpeed;
             if (paddle.x < 0) paddle.x = 0;
             if (paddle.x > canvasWidth - paddle.width) paddle.x = canvasWidth - paddle.width;
-            drawBall();
+            for (let b of balls) {
+                drawBall(b);
+            }
             drawPaddle();
             drawBricks();
             drawHUD();
             collisionDetection();
-            if (ball.x + ball.dx > canvasWidth - ball.radius || ball.x + ball.dx < ball.radius) ball.dx = -ball.dx;
-            if (ball.y + ball.dy < hudHeight + ball.radius) {
-                ball.dy = -ball.dy;
-            } else if (ball.y + ball.dy > canvasHeight - ball.radius - paddle.height - paddleOffsetY) {
-                const paddleTop = canvasHeight - paddle.height - paddleOffsetY;
-                if (
-                    ball.y + ball.dy > paddleTop - ball.radius &&
-                    ball.y + ball.dy < paddleTop + paddle.height &&
-                    ball.x > paddle.x &&
-                    ball.x < paddle.x + paddle.width
-                ) {
-                    const collidePoint = ball.x - (paddle.x + paddle.width / 2);
-                    const normalize = collidePoint / (paddle.width / 2);
-                    const maxBounceAngle = Math.PI / 3;
-                    const bounceAngle = normalize * maxBounceAngle;
+            for (let i = balls.length - 1; i >= 0; i--) {
+                const b = balls[i];
 
-                    const speed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
-                    ball.dx = speed * Math.sin(bounceAngle);
-                    ball.dy = -Math.abs(speed * Math.cos(bounceAngle));
-                } else {
-                    lives--;
-                    if (!lives) {
-                        gameOverSound.play().catch(err => console.error("Error playing gameOverSound:", err));
-                        alert("Game Over");
-                        document.location.reload();
-                    } else {
-                        ball.x = canvasWidth / 2;
-                        ball.y = isMobile ? canvasHeight - (canvasHeight * 0.45) : canvasHeight - (canvasHeight * 0.1);
-                        ball.dx = ballSpeed;
-                        ball.dy = -ballSpeed;
-                        paddle.x = (canvasWidth - paddle.width) / 2;
+                // Va chạm tường trái/phải
+                if (b.x + b.dx > canvasWidth - b.radius || b.x + b.dx < b.radius) {
+                    b.dx = -b.dx;
+                }
+
+                // Va chạm trần (dưới HUD)
+                if (b.y + b.dy < hudHeight + b.radius) {
+                    b.dy = -b.dy;
+                }
+
+                // Va chạm paddle
+                else if (b.y + b.dy > canvasHeight - b.radius - paddle.height - paddleOffsetY) {
+                    const paddleTop = canvasHeight - paddle.height - paddleOffsetY;
+                    if (
+                        b.y + b.dy > paddleTop - b.radius &&
+                        b.y + b.dy < paddleTop + paddle.height &&
+                        b.x > paddle.x &&
+                        b.x < paddle.x + paddle.width
+                    ) {
+                        const collidePoint = b.x - (paddle.x + paddle.width / 2);
+                        const normalize = collidePoint / (paddle.width / 2);
+                        const maxBounceAngle = Math.PI / 3;
+                        const bounceAngle = normalize * maxBounceAngle;
+
+                        const speed = Math.sqrt(b.dx * b.dx + b.dy * b.dy);
+                        b.dx = speed * Math.sin(bounceAngle);
+                        b.dy = -Math.abs(speed * Math.cos(bounceAngle));
+                    } else if (b.y > canvasHeight + b.radius) {
+                        // Nếu là bóng phụ thì xóa
+                        if (balls.length > 1) {
+                            balls.splice(i, 1);
+                        } else {
+                            // Là bóng cuối → mất mạng
+                            lives--;
+                            if (!lives) {
+                                gameOverSound.play().catch(err => console.error("Error playing gameOverSound:", err));
+                                alert("Game Over");
+                                document.location.reload();
+                            } else {
+                                slowBallActive = false;
+                                if (slowBallTimer) {
+                                    clearTimeout(slowBallTimer);
+                                    slowBallTimer = null;
+                                }
+                                b.x = canvasWidth / 2;
+                                b.y = isMobile ? canvasHeight - (canvasHeight * 0.45) : canvasHeight - (canvasHeight * 0.1);
+                                b.dx = ballSpeed;
+                                b.dy = -ballSpeed;
+                                paddle.x = (canvasWidth - paddle.width) / 2
+                            }
+                        }
                     }
                 }
+
+                // Cập nhật vị trí bóng
+                b.x += b.dx;
+                b.y += b.dy;
             }
-            ball.x += ball.dx;
-            ball.y += ball.dy;
+
+            drawPowerUps();
             requestAnimationFrame(draw);
         }
     </script>
