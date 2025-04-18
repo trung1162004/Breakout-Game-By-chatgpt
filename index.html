@@ -495,13 +495,13 @@
                                 score += doubleScoreActive ? 20 : 10;
 
                                 // Power-up rơi ra (20% xác suất)
-                                if (Math.random() < 0.2) {
+                                if (Math.random() < 0.8) {
                                     const types = [
                                         "longPaddle", "slowBall", "doubleScore", "extraLife", "multiBall",
                                         "minus100", "minus300", "shrinkPaddle"
                                     ];
                                     const type = types[Math.floor(Math.random() * types.length)];
-                                    const size = canvasWidth * 0.03;
+                                    const size = canvasHeight * 0.06;
                                     powerUps.push({
                                         x: brick.x + brickWidth / 2 - size / 2,
                                         y: brick.y + brickHeight,
