@@ -195,7 +195,7 @@
         powerImages.minus100.src = "img/minus100.png";
         powerImages.minus300.src = "img/minus300.png";
         powerImages.shrinkPaddle.src = "img/shrinkpaddle.png";
-        
+
 
         const powerupSound = new Audio("sound/power-up.mp3");
 
@@ -251,7 +251,7 @@
             brickRowCount = isPortrait ? 6 : 5;
             brickWidth = (canvasWidth - canvasWidth * 0.1) / (brickColumnCount + 1);
             brickHeight = brickWidth * 0.4;
-            brickPadding = brickWidth * 0.05;
+            brickPadding = brickWidth * 0.03;
             brickOffsetTop = isMobile ? (isPortrait ? canvasHeight * 0.15 : canvasHeight * 0.15) : canvasHeight * 0.15;
             brickOffsetLeft = (canvasWidth - (brickColumnCount * (brickWidth + brickPadding) - brickPadding)) / 2;
 
@@ -469,11 +469,21 @@
                     if (brick.status !== 1) continue;
 
                     for (let b of balls) {
+                        const ballLeft = b.x - b.radius;
+                        const ballRight = b.x + b.radius;
+                        const ballTop = b.y - b.radius;
+                        const ballBottom = b.y + b.radius;
+
+                        const brickLeft = brick.x;
+                        const brickRight = brick.x + brickWidth;
+                        const brickTop = brick.y;
+                        const brickBottom = brick.y + brickHeight;
+
                         if (
-                            b.x > brick.x &&
-                            b.x < brick.x + brickWidth &&
-                            b.y > brick.y &&
-                            b.y < brick.y + brickHeight
+                            ballRight > brickLeft &&
+                            ballLeft < brickRight &&
+                            ballBottom > brickTop &&
+                            ballTop < brickBottom
                         ) {
                             const overlapX = (b.x - (brick.x + brickWidth / 2)) / (brickWidth / 2);
                             const overlapY = (b.y - (brick.y + brickHeight / 2)) / (brickHeight / 2);
@@ -495,7 +505,7 @@
                                 score += doubleScoreActive ? 20 : 10;
 
                                 // Power-up rơi ra (20% xác suất)
-                                if (Math.random() < 0.2) {
+                                if (Math.random() < 0.4) {
                                     const types = [
                                         "longPaddle", "slowBall", "doubleScore", "extraLife", "multiBall",
                                         "minus100", "minus300", "shrinkPaddle"
@@ -564,10 +574,14 @@
                 }
 
                 // Nếu chạm paddle
+                const paddleTop = canvasHeight - paddle.height - paddleOffsetY;
+                const paddleBottom = paddleTop + paddle.height;
+
                 if (
-                    p.y + p.height >= canvasHeight - paddle.height - paddleOffsetY &&
-                    p.x > paddle.x &&
-                    p.x < paddle.x + paddle.width
+                    p.x < paddle.x + paddle.width &&
+                    p.x + p.width > paddle.x &&
+                    p.y + p.height >= paddleTop &&
+                    p.y <= paddleBottom
                 ) {
                     activatePowerUp(p.type);
                     powerupSound.play().catch(err => console.error("Powerup sound error:", err));
